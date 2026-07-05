@@ -1,0 +1,5 @@
+SELECT DISTINCT u
+FROM User u
+JOIN u.userStatuses s
+WHERE (:onlyActive = false OR s.accountStatus = 'ACTIVE')
+AND u.tokens.privateToken = :token

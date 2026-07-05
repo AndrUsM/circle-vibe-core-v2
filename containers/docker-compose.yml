@@ -1,0 +1,16 @@
+services:
+  circle-vibe-core-v2-db:
+    image: postgres:17
+    container_name: circle-vibe-core-v2-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: circle_vibe_core_v2
+      POSTGRES_USER: circle-vibe-admin
+      POSTGRES_PASSWORD: password
+    ports:
+      - "8000:5432"
+    volumes:
+      - circle-vibe-core-v2-db-data:/var/lib/postgresql/data
+
+volumes:
+  circle-vibe-core-v2-db-data:
