@@ -1,23 +1,27 @@
 package com.circle_vibe_core.app.user.service;
 
 import java.util.List;
-import java.util.function.Consumer;
+
+import org.springframework.stereotype.Repository;
 
 import com.circle_vibe_core.app.user.dto.UpdateUserInputDto;
 import com.circle_vibe_core.app.user.dto.UserFilterParams;
 import com.circle_vibe_core.app.user.entity.User;
-import com.circle_vibe_core.app.user.entity.UserAvatar;
+import com.circle_vibe_core.app.user.repository.UserBaseRepository;
 import com.circle_vibe_core.app.user.repository.UserQueryRepository;
 
 import jakarta.transaction.Transactional;
 
+@Repository
 public class UserBaseService {
   private final UserQueryRepository userQueryRepository;
-  private final UserBaseService userBaseRepository;
+  private final UserBaseRepository userBaseRepository;
+  private final UserUpdateService userUpdateService;
 
-  public UserBaseService(UserQueryRepository userQueryRepository, UserBaseService userBaseRepository) {
+  public UserBaseService(UserQueryRepository userQueryRepository, UserBaseRepository userBaseRepository, UserUpdateService userUpdateService) {
     this.userBaseRepository = userBaseRepository;
     this.userQueryRepository = userQueryRepository;
+    this.userUpdateService = userUpdateService;
   }
 
   @Transactional()
@@ -30,21 +34,24 @@ public class UserBaseService {
     return this.userQueryRepository.getById(id);
   }
 
-  public User update(Long id, UpdateUserInputDto updatedUser) {
+  public User update(Long id, UpdateUserInputDto payload) {
     User user = getById(id);
+    User updatedUser = this.userUpdateService.getUpdatedUser(user, payload);
 
-    user.setAvatar(new UserAvatar());
-
-    return user;
+    return this.userBaseRepository.update(updatedUser);
   }
 
-  private User
+  private User updatePassword(Long id, String password) {
+    User user = getById(id);
+    User updatedUser = this.userUpdateService.getUpdatedUserPassword(user, password);
 
-  private void updateIfPresent(Object value, Consumer<Object> setter) {
-    if (value != null) {
-        setter.accept(value);
-    }
+    return this.userBaseRepository.update(updatedUser);
   }
 
-  private void updateBaseUser(User)
+  private User updateUserTokens(Long id) {
+    User user = getById(id);
+    User updatedUser = this.userUpdateService.getUserWithUpdatedTokens(user);
+
+    return this.userBaseRepository.update(updatedUser);
+  }
 }
