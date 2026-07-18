@@ -1,5 +1,12 @@
 package com.circle_vibe_core.app.user.dto;
 
-public record UserFilterParams(
-  String email
-) {}
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
+@AllArgsConstructor
+public class UserFilterParams {
+	public String email;
+}

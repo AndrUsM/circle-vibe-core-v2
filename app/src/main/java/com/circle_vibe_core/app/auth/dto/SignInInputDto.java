@@ -1,0 +1,6 @@
+package com.circle_vibe_core.app.auth.dto;
+
+public record SignInInputDto(
+  String email,
+  String password
+) {}

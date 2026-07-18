@@ -23,7 +23,7 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 
 @Repository
-public class UserQueryRepository implements IUserQueryRepository {
+public class UserQueryRepository {
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -31,7 +31,6 @@ public class UserQueryRepository implements IUserQueryRepository {
 	private final PageableFactory pageableFactory = new PageableFactory();
 	private final FilterPredicatesService filterPredicates = new FilterPredicatesService();
 
-	@Override
 	public User getByToken(UserByTokenParams params) {
 		String jpql = queryLoader.load(
 				"jpql/user/find-users.jpql");
@@ -42,12 +41,10 @@ public class UserQueryRepository implements IUserQueryRepository {
 				.getSingleResult();
 	}
 
-	@Override
 	public User getById(Long id) {
 		return this.entityManager.find(User.class, id);
 	}
 
-	@Override
 	public User getByFilter(UserFilterParams params) {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<User> query = builder.createQuery(User.class);
@@ -64,7 +61,6 @@ public class UserQueryRepository implements IUserQueryRepository {
 		return entityManager.createQuery(query).getSingleResult();
 	}
 
-	@Override
 	public boolean existsByFilter(UserFilterParams params) {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Long> query = builder.createQuery(Long.class);
@@ -76,7 +72,6 @@ public class UserQueryRepository implements IUserQueryRepository {
 		return entityManager.createQuery(query).getSingleResult() > 0;
 	}
 
-	@Override
 	public List<User> getAll(UserFilterParams params) {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<User> query = builder.createQuery(User.class);
@@ -92,7 +87,6 @@ public class UserQueryRepository implements IUserQueryRepository {
 		return entityManager.createQuery(query).getResultList();
 	}
 
-	@Override
 	public Long count(UserFilterParams params) {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Long> query = builder.createQuery(Long.class);

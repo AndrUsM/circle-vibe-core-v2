@@ -2,6 +2,8 @@ package com.circle_vibe_core.app.user.service;
 
 import java.time.LocalDateTime;
 
+import org.springframework.stereotype.Service;
+
 import com.circle_vibe_core.app.shared.service.HashService;
 import com.circle_vibe_core.app.user.dto.UpdateUserInputDto;
 import com.circle_vibe_core.app.user.entity.User;
@@ -9,9 +11,11 @@ import com.circle_vibe_core.app.user.entity.UserAvatar;
 import com.circle_vibe_core.app.user.entity.UserContacts;
 import com.circle_vibe_core.app.user.entity.UserLocation;
 import com.circle_vibe_core.app.user.entity.UserPrivacySettings;
+import com.circle_vibe_core.app.user.entity.UserRoles;
 import com.circle_vibe_core.app.user.entity.UserSessionMeta;
 import com.circle_vibe_core.app.user.entity.UserTokens;
 
+@Service
 public class UserUpdateService {
   private final HashService hashService;
 
@@ -24,6 +28,7 @@ public class UserUpdateService {
     UserPrivacySettings privacySettings = this.getPrivacySettings(user, updatedUser);
     UserLocation userLocation = this.getLocation(user, updatedUser);
     UserContacts contacts = this.getContacts(user, updatedUser);
+	UserRoles roles = this.getUserRoles(user, updatedUser);
 
     user.setAvatar(avatar);
     user.setPrivacySettings(privacySettings);
@@ -31,6 +36,7 @@ public class UserUpdateService {
     user.setContacts(contacts);
     user.setName(updatedUser.name());
     user.setBirthDate(updatedUser.birthDate());
+	user.setUserRoles(roles);
 
     return user;
   }
@@ -53,6 +59,14 @@ public class UserUpdateService {
     tokens.setPrivateToken(privateToken);
 
     return tokens;
+  }
+
+  public User getpdatedUserTokens(User user) {
+	UserTokens tokens = this.getUpdatedUserTokens(user);
+
+	user.setTokens(tokens);
+
+	return user;
   }
 
   public User getUpdatedUserPassword(User user, String password) {
@@ -127,5 +141,13 @@ public class UserUpdateService {
 
   private String getHashedPassword(String password) {
     return this.hashService.decrypt(password);
+  }
+
+  private UserRoles getUserRoles(User user, UpdateUserInputDto updatedUser) {
+	UserRoles userRoles = new UserRoles();
+
+	userRoles.setRole(updatedUser.userRole());
+
+	return userRoles;
   }
 }

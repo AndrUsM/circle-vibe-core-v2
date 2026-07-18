@@ -1,6 +1,7 @@
 package com.circle_vibe_core.app.shared.service;
 
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.circle_vibe_core.app.user.entity.User;
 
@@ -11,7 +12,7 @@ import java.util.random.RandomGenerator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-
+@Service
 public class HashService {
     private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789?#_-";
     private static final RandomGenerator RANDOM = RandomGenerator.getDefault();

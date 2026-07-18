@@ -26,7 +26,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,6 +67,10 @@ public class User {
     @Embedded
     @Valid
     private UserAvatar avatar;
+
+	@Embedded
+	@Valid
+	private UserRoles userRoles;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "last_login_location_id")
