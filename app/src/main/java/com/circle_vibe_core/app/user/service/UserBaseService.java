@@ -4,9 +4,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Repository;
 
 import com.circle_vibe_core.app.shared.dtos.PaginationParamsDto;
-import com.circle_vibe_core.app.user.dto.CreateUserInputDto;
 import com.circle_vibe_core.app.user.dto.UpdateUserInputDto;
 import com.circle_vibe_core.app.user.dto.UserFilterParams;
+import com.circle_vibe_core.app.user.dto.UserOutputDto;
 import com.circle_vibe_core.app.user.entity.User;
 import com.circle_vibe_core.app.user.repository.UserBaseRepository;
 import com.circle_vibe_core.app.user.repository.UserQueryRepository;
@@ -18,17 +18,21 @@ public class UserBaseService {
 	private final UserQueryRepository userQueryRepository;
 	private final UserBaseRepository userBaseRepository;
 	private final UserUpdateService userUpdateService;
+	private final UserDomainMapService userDomainMapService;
 
 	public UserBaseService(UserQueryRepository userQueryRepository, UserBaseRepository userBaseRepository,
-			UserUpdateService userUpdateService) {
+			UserUpdateService userUpdateService, UserDomainMapService userDomainMapService) {
 		this.userBaseRepository = userBaseRepository;
 		this.userQueryRepository = userQueryRepository;
 		this.userUpdateService = userUpdateService;
+		this.userDomainMapService = userDomainMapService;
 	}
 
 	@Transactional()
-	public Page<User> getAllPaginated(PaginationParamsDto paginationDto, UserFilterParams params) {
-		return this.userQueryRepository.getAllPaginated(paginationDto, params);
+	public Page<UserOutputDto> getAllPaginated(PaginationParamsDto paginationDto, UserFilterParams params) {
+		Page<User> paginatedUsers = this.userQueryRepository.getAllPaginated(paginationDto, params);
+
+		return paginatedUsers.map(user -> this.userDomainMapService.toUser(user));
 	}
 
 	@Transactional()
