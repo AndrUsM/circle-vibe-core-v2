@@ -17,9 +17,9 @@ public class FilterPredicatesService {
 			UserFilterParams params) {
 		List<Predicate> predicates = new ArrayList<>();
 
-		if (params.email() != null && !params.email().isBlank()) {
+		if (params.email != null && !params.email.isBlank()) {
 			predicates.add(
-					builder.equal(user.get("email"), params.email()));
+					builder.equal(user.get("email"), params.email));
 		}
 
 		return predicates;

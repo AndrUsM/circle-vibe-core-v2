@@ -1,6 +1,8 @@
 package com.circle_vibe_core.app.auth.service;
 
+import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -9,11 +11,13 @@ import com.circle_vibe_core.app.auth.dto.AuthOutputDto;
 import com.circle_vibe_core.app.auth.dto.AuthRestorePasswordInputDto;
 import com.circle_vibe_core.app.auth.dto.SignInInputDto;
 import com.circle_vibe_core.app.user.dto.CreateUserInputDto;
+import com.circle_vibe_core.app.user.dto.UserOutputDto;
 import com.circle_vibe_core.app.user.entity.User;
 import com.circle_vibe_core.app.user.repository.UserBaseRepository;
 import com.circle_vibe_core.app.user.service.UserAuthQueryService;
 import com.circle_vibe_core.app.user.service.UserBaseService;
 import com.circle_vibe_core.app.user.service.UserCreateService;
+import com.circle_vibe_core.app.user.service.UserDomainMapService;
 import com.circle_vibe_core.app.user.service.UserUpdateService;
 
 @Service
@@ -25,11 +29,12 @@ public class AuthService {
 	private final UserAuthQueryService authQueryService;
 	private final UserCreateService userCreateService;
 	private final UserUpdateService userUpdateService;
+	private final UserDomainMapService userDomainMapService;
 
 	public AuthService(UserBaseService userBaseService, JwtService jwtService,
 			AuthenticationManager authenticationManager, UserAuthQueryService authQueryService,
 			UserUpdateService userUpdateService, UserCreateService userCreateService,
-			UserBaseRepository userBaseRepository) {
+			UserBaseRepository userBaseRepository, UserDomainMapService userDomainMapService) {
 		this.authQueryService = authQueryService;
 		this.jwtService = jwtService;
 		this.userBaseService = userBaseService;
@@ -37,11 +42,16 @@ public class AuthService {
 		this.userCreateService = userCreateService;
 		this.userUpdateService = userUpdateService;
 		this.userBaseRepository = userBaseRepository;
+		this.userDomainMapService = userDomainMapService;
 	}
 
 	public AuthOutputDto signIn(SignInInputDto params) {
 		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(params.email(), params.password()));
 		User user = this.userBaseService.getByEmail(params.email());
+
+		if (user == null) {
+			throw new BadCredentialsException("Incorrect email or password");
+		}
 
 		return this.getAuthJwtToken(user);
 
@@ -52,7 +62,7 @@ public class AuthService {
 		Boolean isExists = this.userBaseService.getByEmail(email) != null;
 
 		if (isExists) {
-			return new AuthOutputDto();
+			throw new BadCredentialsException("Account with that email already created");
 		}
 
 		User user = this.userCreateService.getCreatedUser(userInputDto);
@@ -70,7 +80,7 @@ public class AuthService {
 		String password = inputDto.password();
 
 		if (user == null) {
-			return new AuthOutputDto();
+			throw new BadCredentialsException("Incorrect email or password");
 		}
 
 		User updatedUserInputDto = this.userUpdateService.getUpdatedUserPassword(user, password);
@@ -83,9 +93,10 @@ public class AuthService {
 	}
 
 	private AuthOutputDto getAuthJwtToken(User user) {
-		UserDetails details = this.authQueryService.getByUser(finalUser);
+		UserDetails details = this.authQueryService.getByUser(user);
 		String token = this.jwtService.generateToken(details);
+		UserOutputDto userOutputDto = this.userDomainMapService.toUser(user);
 
-		return new AuthOutputDto(token);
+		return new AuthOutputDto(token, userOutputDto);
 	}
 }

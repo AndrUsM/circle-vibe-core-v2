@@ -116,7 +116,7 @@ public class UserCreateService {
 		UserContacts contacts = new UserContacts();
 
 		contacts.setEmail(user.name());
-		contacts.setPhone(user.phone());
+		contacts.setPhone(user.contacts().phone());
 
 		return contacts;
 	}

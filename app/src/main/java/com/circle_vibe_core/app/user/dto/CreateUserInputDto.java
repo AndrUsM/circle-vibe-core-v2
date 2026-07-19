@@ -18,5 +18,5 @@ public record CreateUserInputDto(
     @NotNull CreateUserLocationInputDto location,
     @NotNull CreateUserContactsInputDto contacts,
     @NotBlank UserType userType,
-	UserRole userRole
+	@NotBlank UserRole userRole
 ) {}
