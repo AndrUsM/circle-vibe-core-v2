@@ -1,3 +1,19 @@
+Java: 26
+
+Run configuration:
+    ```{
+      "type": "java",
+      "name": "Launch API",
+      "request": "launch",
+      "mainClass": "com.circle_vibe_core.app.AppApplication",
+      "vmArgs": "-Duser.timezone=Europe/Kyiv",
+      "env": {
+        "DATABASE_URL": "jdbc:postgresql://localhost:8000/circle_vibe_core_v2",
+        "DATABASE_USER": "circle-vibe-admin",
+        "DATABASE_PASSWORD": "password"
+      }
+    }```
+
 src/main/java/com/circlevibecore
 ├── shared
 │   ├── config
