@@ -14,6 +14,11 @@ Run configuration:
       }
     }```
 
+
+DB Connection string: postgresql://circle-vibe-admin:password@localhost:8000/circle_vibe_core_v2
+
+Swagger: http://localhost:9000/api/swagger-ui/index.html
+
 src/main/java/com/circlevibecore
 ├── shared
 │   ├── config

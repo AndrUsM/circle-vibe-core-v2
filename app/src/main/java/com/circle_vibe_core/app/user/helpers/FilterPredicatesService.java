@@ -17,9 +17,14 @@ public class FilterPredicatesService {
 			UserFilterParams params) {
 		List<Predicate> predicates = new ArrayList<>();
 
-		if (params.email != null && !params.email.isBlank()) {
+		if (params.getEmail() != null && !params.getEmail().isBlank()) {
 			predicates.add(
-					builder.equal(user.get("email"), params.email));
+					builder.equal(user.get("contacts").get("email"), params.getEmail()));
+		}
+
+		if (params.getPrivateToken() != null && !params.getPrivateToken().isBlank()) {
+			predicates.add(
+					builder.equal(user.get("tokens").get("privateToken"), params.getPrivateToken()));
 		}
 
 		return predicates;

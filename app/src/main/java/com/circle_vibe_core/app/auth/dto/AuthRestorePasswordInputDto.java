@@ -1,3 +1,3 @@
 package com.circle_vibe_core.app.auth.dto;
 
-public record AuthRestorePasswordInputDto(String password) {}
+public record AuthRestorePasswordInputDto(String password, String privateToken) {}

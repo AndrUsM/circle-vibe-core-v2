@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import com.circle_vibe_core.app.user.entity.User;
 
 import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 
 @Repository
 public class UserBaseRepository {
@@ -14,11 +15,13 @@ public class UserBaseRepository {
 		this.entityManager = entityManager;
 	}
 
+	@Transactional
 	public User create(User user) {
 		this.entityManager.persist(user);
 		return user;
 	}
 
+	@Transactional
 	public int deleteById(Long id) {
 		return this.entityManager.createQuery("""
 				DELETE FROM User u
@@ -26,6 +29,7 @@ public class UserBaseRepository {
 				""").setParameter("id", id).executeUpdate();
 	}
 
+	@Transactional
 	public User update(User user) {
 		return this.entityManager.merge(user);
 	}

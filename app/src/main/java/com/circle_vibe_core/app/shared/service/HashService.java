@@ -1,9 +1,10 @@
 package com.circle_vibe_core.app.shared.service;
 
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.circle_vibe_core.app.user.entity.User;
+import com.circle_vibe_core.app.config.Argon2Properties;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -13,9 +14,15 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
+@EnableConfigurationProperties(Argon2Properties.class)
 public class HashService {
     private static final String CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789?#_-";
     private static final RandomGenerator RANDOM = RandomGenerator.getDefault();
+	private final Argon2PasswordEncoder encoder;
+
+	public HashService(Argon2Properties properties) {
+		this.encoder = this.getEncoder(properties);
+	}
 
     public static String generate(int length) {
         return IntStream.range(0, length)
@@ -34,19 +41,20 @@ public class HashService {
     }
 
     public String decrypt(String rawString) {
-        Argon2PasswordEncoder encoder = this.getEncoder();
-        return encoder.encode(rawString);
+        return this.encoder.encode(rawString);
     }
 
     public Boolean compare(String raw, String hash) {
-        Argon2PasswordEncoder encoder = this.getEncoder();
-
-        return encoder.matches(raw, hash);
+        return this.encoder.matches(raw, hash);
     }
 
-    private Argon2PasswordEncoder getEncoder() {
-        Argon2PasswordEncoder encoder = new Argon2PasswordEncoder(
-            16, 32, 1, 65536, 3);
-        return encoder;
-    }
+	private Argon2PasswordEncoder getEncoder(Argon2Properties properties) {
+		return new Argon2PasswordEncoder(
+            properties.saltLength(),
+            properties.hashLength(),
+            properties.parallelism(),
+            properties.memory(),
+            properties.iterations()
+        );
+	}
 }

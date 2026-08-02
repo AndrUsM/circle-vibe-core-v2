@@ -58,7 +58,11 @@ public class UserQueryRepository {
 			query.where(predicates);
 		}
 
-		return entityManager.createQuery(query).getSingleResult();
+		return entityManager
+				.createQuery(query)
+				.getResultStream()
+				.findFirst()
+				.orElse(null);
 	}
 
 	public boolean existsByFilter(UserFilterParams params) {
@@ -122,7 +126,8 @@ public class UserQueryRepository {
 		if (!predicates.isEmpty()) {
 			query.where(predicates);
 
-			TypedQuery<User> typedQuery = this.pageableFactory.buildTypedPaginationQuery(entityManager, query, pageable);
+			TypedQuery<User> typedQuery = this.pageableFactory.buildTypedPaginationQuery(entityManager, query,
+					pageable);
 			List<User> content = typedQuery.getResultList();
 
 			return this.pageableFactory.buildPage(content, pageable, total);

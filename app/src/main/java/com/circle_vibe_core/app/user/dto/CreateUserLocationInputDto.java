@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotBlank;
 
 public record CreateUserLocationInputDto (
     @NotBlank String countryCode,
-    @NotBlank String ciry
+    @NotBlank String city
 ) {}

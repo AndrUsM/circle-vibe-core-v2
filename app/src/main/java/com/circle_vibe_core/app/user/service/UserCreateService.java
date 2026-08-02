@@ -9,7 +9,6 @@ import com.circle_vibe_core.app.shared.service.HashService;
 import com.circle_vibe_core.app.user.dto.CreateUserInputDto;
 import com.circle_vibe_core.app.user.dto.CreateUserLocationInputDto;
 import com.circle_vibe_core.app.user.dto.CreateUserPrivacySettingsInputDto;
-import com.circle_vibe_core.app.user.dto.UpdateUserInputDto;
 import com.circle_vibe_core.app.user.entity.User;
 import com.circle_vibe_core.app.user.entity.UserAvatar;
 import com.circle_vibe_core.app.user.entity.UserContacts;
@@ -34,6 +33,8 @@ public class UserCreateService {
 		UserLocation userLocation = this.getLocation(userDto);
 		UserContacts contacts = this.getContacts(userDto);
 		UserRoles roles = this.getUserRoles(userDto);
+		UserTokens userTokens = this.getUserTokens(userDto);
+		String passwordHash = this.getPasswordHash(user, userDto);
 
 		user.setAvatar(avatar);
 		user.setPrivacySettings(privacySettings);
@@ -42,6 +43,8 @@ public class UserCreateService {
 		user.setName(userDto.name());
 		user.setBirthDate(userDto.birthDate());
 		user.setUserRoles(roles);
+		user.setPasswordHash(passwordHash);
+		user.setTokens(userTokens);
 
 		return user;
 	}
@@ -50,7 +53,7 @@ public class UserCreateService {
 		UserLocation location = new UserLocation();
 		CreateUserLocationInputDto inputDto = user.location();
 
-		location.setCity(inputDto.ciry());
+		location.setCity(inputDto.city());
 		location.setCountryCode(inputDto.countryCode());
 
 		return location;
@@ -71,15 +74,24 @@ public class UserCreateService {
 		return meta;
 	}
 
+	public UserTokens getUserTokens(User user) {
+		return new UserTokens();
+	}
+
 	public User getUserPassword(User user, CreateUserInputDto userDto) {
-		String password = userDto.password();
-		String passwordHash = this.getHashedPassword(password);
+		String passwordHash = this.getPasswordHash(user, userDto);
 		UserTokens tokens = this.getUserTokens(userDto);
 
 		user.setTokens(tokens);
 		user.setPasswordHash(passwordHash);
 
 		return user;
+	}
+
+	public String getPasswordHash(User user, CreateUserInputDto userDto) {
+		String password = userDto.password();
+
+		return this.getHashedPassword(password);
 	}
 
 	private UserPrivacySettings getPrivacySettings(CreateUserInputDto user) {
@@ -115,7 +127,7 @@ public class UserCreateService {
 	private UserContacts getContacts(CreateUserInputDto user) {
 		UserContacts contacts = new UserContacts();
 
-		contacts.setEmail(user.name());
+		contacts.setEmail(user.contacts().email());
 		contacts.setPhone(user.contacts().phone());
 
 		return contacts;

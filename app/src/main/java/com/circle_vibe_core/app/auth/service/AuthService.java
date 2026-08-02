@@ -1,6 +1,5 @@
 package com.circle_vibe_core.app.auth.service;
 
-import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.circle_vibe_core.app.auth.dto.AuthOutputDto;
 import com.circle_vibe_core.app.auth.dto.AuthRestorePasswordInputDto;
 import com.circle_vibe_core.app.auth.dto.SignInInputDto;
+import com.circle_vibe_core.app.shared.exceptions.UserAlreadyExistsException;
+import com.circle_vibe_core.app.user.dto.BasicAuthHashInputDto;
 import com.circle_vibe_core.app.user.dto.CreateUserInputDto;
 import com.circle_vibe_core.app.user.dto.UserOutputDto;
 import com.circle_vibe_core.app.user.entity.User;
@@ -62,7 +63,7 @@ public class AuthService {
 		Boolean isExists = this.userBaseService.getByEmail(email) != null;
 
 		if (isExists) {
-			throw new BadCredentialsException("Account with that email already created");
+			throw new UserAlreadyExistsException("Account with that email already created");
 		}
 
 		User user = this.userCreateService.getCreatedUser(userInputDto);
@@ -70,16 +71,22 @@ public class AuthService {
 		User userWithUpdatedToken = this.userUpdateService.getpdatedUserTokens(savedUser);
 		User finalUser = this.userBaseRepository.update(userWithUpdatedToken);
 
-		authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(userInputDto.contacts().email(), userInputDto.password()));
 		return this.getAuthJwtToken(finalUser);
 	}
 
 	public AuthOutputDto restorePassword(Long userId, AuthRestorePasswordInputDto inputDto) {
 		User user = this.userBaseService.getById(userId);
 		String password = inputDto.password();
+		String privateToken = inputDto.privateToken();
 
-		if (user == null) {
+		if (user == null || privateToken == null) {
+			throw new BadCredentialsException("Incorrect email or password");
+		}
+
+		BasicAuthHashInputDto basicAuthHashParams = new BasicAuthHashInputDto(user.getContacts().getEmail(), privateToken);
+		UserDetails userDetails = this.authQueryService.getUserByBasicTokenData(basicAuthHashParams);
+
+		if (userDetails == null) {
 			throw new BadCredentialsException("Incorrect email or password");
 		}
 

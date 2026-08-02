@@ -42,7 +42,7 @@ public class UserBaseService {
 
 	@Transactional()
 	public User getByEmail(String email) {
-		UserFilterParams filters = new UserFilterParams(email);
+		UserFilterParams filters = new UserFilterParams(email, null);
 		return this.userQueryRepository.getByFilter(filters);
 	}
 
