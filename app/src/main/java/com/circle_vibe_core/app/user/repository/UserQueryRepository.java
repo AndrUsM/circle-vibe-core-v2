@@ -6,13 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import com.circle_vibe_core.app.user.helpers.UserFilterPredicatesService;
 import com.circle_vibe_core.app.shared.dtos.PaginationParamsDto;
 import com.circle_vibe_core.app.shared.service.PageableFactory;
 import com.circle_vibe_core.app.shared.service.QueryLoader;
 import com.circle_vibe_core.app.user.dto.UserByTokenParams;
 import com.circle_vibe_core.app.user.dto.UserFilterParams;
 import com.circle_vibe_core.app.user.entity.User;
-import com.circle_vibe_core.app.user.helpers.FilterPredicatesService;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -29,7 +29,7 @@ public class UserQueryRepository {
 
 	private final QueryLoader queryLoader = new QueryLoader();
 	private final PageableFactory pageableFactory = new PageableFactory();
-	private final FilterPredicatesService filterPredicates = new FilterPredicatesService();
+	private final UserFilterPredicatesService filterPredicates = new UserFilterPredicatesService();
 
 	public User getByToken(UserByTokenParams params) {
 		String jpql = queryLoader.load(
@@ -49,8 +49,7 @@ public class UserQueryRepository {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<User> query = builder.createQuery(User.class);
 		Root<User> user = query.from(User.class);
-		List<Predicate> predicates = this.filterPredicates.buildUserFilterPredicates(builder, user, params);
-		;
+		List<Predicate> predicates = this.filterPredicates.buildFilterPredicates(builder, user, params);
 
 		query.select(user);
 
@@ -69,7 +68,7 @@ public class UserQueryRepository {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<Long> query = builder.createQuery(Long.class);
 		Root<User> user = query.from(User.class);
-		List<Predicate> predicates = this.filterPredicates.buildUserFilterPredicates(builder, user, params);
+		List<Predicate> predicates = this.filterPredicates.buildFilterPredicates(builder, user, params);
 
 		query.select(builder.count(user)).where(predicates);
 
@@ -80,7 +79,7 @@ public class UserQueryRepository {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<User> query = builder.createQuery(User.class);
 		Root<User> user = query.from(User.class);
-		List<Predicate> predicates = this.filterPredicates.buildUserFilterPredicates(builder, user, params);
+		List<Predicate> predicates = this.filterPredicates.buildFilterPredicates(builder, user, params);
 
 		if (!predicates.isEmpty()) {
 			query.where(predicates);
@@ -98,7 +97,7 @@ public class UserQueryRepository {
 
 		query.select(builder.count(user));
 
-		List<Predicate> predicates = this.filterPredicates.buildUserFilterPredicates(builder, user, params);
+		List<Predicate> predicates = this.filterPredicates.buildFilterPredicates(builder, user, params);
 
 		if (predicates.isEmpty()) {
 			return entityManager
@@ -115,7 +114,7 @@ public class UserQueryRepository {
 		CriteriaBuilder builder = entityManager.getCriteriaBuilder();
 		CriteriaQuery<User> query = builder.createQuery(User.class);
 		Root<User> user = query.from(User.class);
-		List<Predicate> predicates = this.filterPredicates.buildUserFilterPredicates(builder, user, params);
+		List<Predicate> predicates = this.filterPredicates.buildFilterPredicates(builder, user, params);
 		Long total = this.count(params);
 		Pageable pageable = this.pageableFactory.create(
 				paginationDto.page(),
