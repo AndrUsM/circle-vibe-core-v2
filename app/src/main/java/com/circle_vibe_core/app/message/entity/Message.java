@@ -29,6 +29,9 @@ public class Message {
 	private long id;
 
 	@NotBlank
+    public String content;
+
+	@NotBlank
 	private MessageStatus status;
 
 	@NotBlank
